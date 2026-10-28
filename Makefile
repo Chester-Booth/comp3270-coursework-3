@@ -7,7 +7,7 @@ HEADERS = fft.h
 CLANG_FORMAT = clang-format
 FORMAT_FILES = fft.c fft.h fft_serial.c fft_mpi.c
 
-.PHONY: all serial format format-check clean
+.PHONY: all serial format clean
 all: fft_serial fft_mpi
 serial: fft_serial
 
