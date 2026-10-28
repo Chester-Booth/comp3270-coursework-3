@@ -18,7 +18,7 @@ fft_mpi: fft_mpi.c $(COMMON) $(HEADERS)
 	$(MPICC) $(CPPFLAGS) $(CFLAGS) -o $@ fft_mpi.c $(COMMON) $(LDFLAGS)
 
 format:
-	$(CLANG_FORMA|T) -i $(FORMAT_FILES)
+	$(CLANG_FORMAT) -i $(FORMAT_FILES)
 	
 clean:
 	rm -f fft_serial fft_mpi fft_serial.exe fft_mpi.exe
