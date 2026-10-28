@@ -76,11 +76,11 @@ report completed by wc. 30/11 - submit on the 2nd meeting
 deadline: 8/12
 
 ## Future meetings
-week 8 wc. 2/11
-week 9 wc. 9/11 
-week 10 wc. 16/11 
-week 11 wc. 23/11 
-week 12 (deadline to submit) wc. 30/11
+week 7 wc. 2/11
+week 8 wc. 9/11 
+week 9 wc. 16/11 
+week 10 wc. 23/11 
+week 11 (deadline to submit) wc. 30/11
 
 mon  
 11:30ish
