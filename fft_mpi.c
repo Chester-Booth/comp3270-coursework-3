@@ -32,6 +32,17 @@ static void scatter_rows(const double complex *full, double complex *local, int 
     (void)local;
     (void)count;
     fail("TODO Task 2: complete scatter_rows");
+    //rank = [] 
+    /*full matrix = [[A11, A12, A13, A14], 
+                    [A21, A22, A23, A24], 
+                    [A31, A32, A33, A34], 
+                    [A41, A42, A43, A44]] */
+    //for i in count:
+    //local[i] = full[i]
+    for(int i = 0; i < count; i++){
+    local[i] = full[i];
+    }
+
 }
 
 static void distributed_transpose(const double complex *input, double complex *output,
@@ -40,7 +51,7 @@ static void distributed_transpose(const double complex *input, double complex *o
     size_t block_count = (size_t)m * m;
     (void)block_count;
     (void)n; /* Used when you complete the indices and exchange. */
-    /* Each destination receives one m x m block.
+    /* Each destination receives one m x m block. 
        Blocks are stored by destination, then by row within each block. */
     for (int q = 0; q < processes; ++q) {
         for (int i = 0; i < m; ++i) {
