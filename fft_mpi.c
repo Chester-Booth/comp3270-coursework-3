@@ -32,17 +32,16 @@ static void scatter_rows(const double complex *full, double complex *local, int 
     (void)local;
     (void)count;
     fail("TODO Task 2: complete scatter_rows");
-    //rank = [] 
-    /*full matrix = [[A11, A12, A13, A14], 
-                    [A21, A22, A23, A24], 
-                    [A31, A32, A33, A34], 
+    // rank = []
+    /*full matrix = [[A11, A12, A13, A14],
+                    [A21, A22, A23, A24],
+                    [A31, A32, A33, A34],
                     [A41, A42, A43, A44]] */
-    //for i in count:
-    //local[i] = full[i]
-    for(int i = 0; i < count; i++){
-    local[i] = full[i];
+    // for i in count:
+    // local[i] = full[i]
+    for (int i = 0; i < count; i++) {
+        local[i] = full[i];
     }
-
 }
 
 static void distributed_transpose(const double complex *input, double complex *output,
@@ -50,15 +49,15 @@ static void distributed_transpose(const double complex *input, double complex *o
                                   int processes) {
     size_t block_count = (size_t)m * m;
     /* Used when you complete the indices and exchange. */
-    /* Each destination receives one m x m block. 
+    /* Each destination receives one m x m block.
        Blocks are stored by destination, then by row within each block. */
     for (int q = 0; q < processes; ++q) {
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < m; ++j) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    input has m rows of length n. Destination q needs its m columns. */
-                size_t source = ((i*n) + (q*m) + j);
-                size_t packed = ((q*block_count) + (i*m) + j);
+                size_t source = ((i * n) + (q * m) + j);
+                size_t packed = ((q * block_count) + (i * m) + j);
                 send[packed] = input[source];
             }
         }
@@ -66,7 +65,8 @@ static void distributed_transpose(const double complex *input, double complex *o
 
     /* TODO Task 2: exchange one block per destination with MPI_Alltoall.
        Use block_count as the count per destination, not the total buffer size. */
-    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX,
+                 MPI_COMM_WORLD);
 
     /* Received blocks are ordered by source rank.
        Place each value into a complete row of the transposed matrix. */
@@ -75,8 +75,8 @@ static void distributed_transpose(const double complex *input, double complex *o
             for (int j = 0; j < m; ++j) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    Block r came from source rank r. Transpose within the block. */
-                size_t received = ((r*block_count) + (i*m) + j);
-                size_t destination = ((j*n) + (r*m) + i);
+                size_t received = ((r * block_count) + (i * m) + j);
+                size_t destination = ((j * n) + (r * m) + i);
                 output[destination] = recv[received];
             }
         }
