@@ -31,18 +31,13 @@ static void scatter_rows(const double complex *full, double complex *local, int 
     (void)full;
     (void)local;
     (void)count;
-    fail("TODO Task 2: complete scatter_rows");
-    //rank = [] 
-    /*full matrix = [[A11, A12, A13, A14], 
-                    [A21, A22, A23, A24], 
-                    [A31, A32, A33, A34], 
+    // rank = []
+    /*full matrix = [[A11, A12, A13, A14],
+                    [A21, A22, A23, A24],
+                    [A31, A32, A33, A34],
                     [A41, A42, A43, A44]] */
-    //for i in count:
-    //local[i] = full[i]
-    for(int i = 0; i < count; i++){
-    local[i] = full[i];
-    }
-
+    MPI_Scatter(full, count, MPI_C_DOUBLE_COMPLEX, local, count, MPI_C_DOUBLE_COMPLEX, 0,
+                MPI_COMM_WORLD);
 }
 
 static void distributed_transpose(const double complex *input, double complex *output,
@@ -50,84 +45,45 @@ static void distributed_transpose(const double complex *input, double complex *o
                                   int processes) {
 
 
-    // For task 2.5 by Sam
-    // Write out send and receive buffers to a text file
-    FILE* sfptr;
-    FILE* rfptr;
-    sfptr = fopen("send.txt", "w");
-    rfptr = fopen("receive.txt", "w");
-    if (sfptr == NULL) {
-        printf("The send file is not opened.");
-    }
-    if (rfptr == NULL) {
-        printf("The receive file is not opened.");
-    }
+
+    
+
 
 
     size_t block_count = (size_t)m * m;
     /* Used when you complete the indices and exchange. */
-    /* Each destination receives one m x m block. 
+    /* Each destination receives one m x m block.
        Blocks are stored by destination, then by row within each block. */
     for (int q = 0; q < processes; ++q) {
-        for (int row = 0; row < m; ++row) {
-            for (int column = 0; column < m; ++column) {
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < m; ++j) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    input has m rows of length n. Destination q needs its m columns. */
-                size_t source = (m *(processes-1-q) + (row*n) + column);
-                size_t packed = ((q*block_count) + (row*m) + column);
-                send[packed] = input[source];
-
-                // Task2.5 by Sam
-                #pragma omp single
-                {
-                printf("for rank %d, source is %d and value is %g; packed is %d\n", q,  source, creal(input[source]), packed);
-                fprintf(sfptr, "r=%d,i=%d,j=%d,v=%g\n", q, row, column, creal(send[packed]));
-                }
+                size_t source = ((i * n) + (q * m) + j);
+                size_t packed = ((q * block_count) + (i * m) + j);
+                send[packed] = input[source];  
             }
         }
     }
-    
-    /*
-    #pragma omp single
-    {
-    for (size_t x=0; x < sizeof(send); x++) {
-        printf("for send index %d is : %f\n", x, creal(send[x]));
-    }
-    for (size_t x=0; x < sizeof(input); x++) {
-        printf("for input index %d is : %f\n", x, creal(input[x]));
-    }
-    }
-    */
 
     /* TODO Task 2: exchange one block per destination with MPI_Alltoall.
        Use block_count as the count per destination, not the total buffer size. */
-    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
-
+    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX,
+                 MPI_COMM_WORLD);
 
     /* Received blocks are ordered by source rank.
        Place each value into a complete row of the transposed matrix. */
     for (int r = 0; r < processes; ++r) {
-        for (int row = 0; row < m; ++row) {
-            for (int column = 0; column < m; ++column) {
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < m; ++j) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    Block r came from source rank r. Transpose within the block. */
-                size_t received = ((r*block_count) + (row*m) + column);
-                size_t destination = (m *(processes-1-r) + (row*n) + column);
+                size_t received = ((r * block_count) + (i * m) + j);
+                size_t destination = ((j * n) + (r * m) + i);
                 output[destination] = recv[received];
-
-                #pragma omp single
-                {
-                // Task2.5 by Sam
-                fprintf(rfptr, "r=%d,i=%d,j=%d,v=%g\n", r, row, column, creal(recv[received]));
-                }
-                
             }
         }
     }
-
-    //Task2.5 by Sam
-    fclose(sfptr);
-    fclose(rfptr);
 }
 
 static double global_error(double local_error) {
@@ -146,7 +102,7 @@ static double slowest_time(double local_time) {
     return elapsed;
 }
 
-/* Supplied stage sequence. Tfclose(sfptr);he result returns to ordinary row layout. */
+/* Supplied stage sequence. The result returns to ordinary row layout. */
 static void fft2d_distributed(double complex *data, double complex *scratch, double complex *send,
                               double complex *recv, int n, int m, int processes) {
     for (int row = 0; row < m; ++row)
@@ -228,11 +184,11 @@ int main(int argc, char **argv) {
     double complex *scratch = allocate_or_abort(count);
     double complex *send = allocate_or_abort(count);
     double complex *recv = allocate_or_abort(count);
-
-
     if (transpose_only) {
-
         check_transpose(data, scratch, send, recv, n, m, rank, processes);
+
+
+
 
         free(data);
         free(scratch);
