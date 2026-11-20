@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <graphics.h>
 
 /* One rank owns m consecutive rows, each containing n complex values.
    All ranks follow the same sequence of collective calls. */
