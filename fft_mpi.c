@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <graphics.h>
 
 /* One rank owns m consecutive rows, each containing n complex values.
    All ranks follow the same sequence of collective calls. */
@@ -49,6 +48,22 @@ static void scatter_rows(const double complex *full, double complex *local, int 
 static void distributed_transpose(const double complex *input, double complex *output,
                                   double complex *send, double complex *recv, int n, int m,
                                   int processes) {
+
+
+    // For task 2.5 by Sam
+    // Write out send and receive buffers to a text file
+    FILE* sfptr;
+    FILE* rfptr;
+    sfptr = fopen("send.txt", "w");
+    rfptr = fopen("receive.txt", "w");
+    if (sfptr == NULL) {
+        printf("The send file is not opened.");
+    }
+    if (rfptr == NULL) {
+        printf("The receive file is not opened.");
+    }
+
+
     size_t block_count = (size_t)m * m;
     /* Used when you complete the indices and exchange. */
     /* Each destination receives one m x m block. 
@@ -61,6 +76,9 @@ static void distributed_transpose(const double complex *input, double complex *o
                 size_t source = ((i*n) + (q*m) + j);
                 size_t packed = ((q*block_count) + (i*m) + j);
                 send[packed] = input[source];
+
+                // Task2.5 by Sam
+                fprintf(sfptr, "rank=%d, sent buffer at i=%d, and j=%d is :%g\n", q, i, j, creal(send[packed]));
             }
         }
     }
@@ -68,6 +86,7 @@ static void distributed_transpose(const double complex *input, double complex *o
     /* TODO Task 2: exchange one block per destination with MPI_Alltoall.
        Use block_count as the count per destination, not the total buffer size. */
     MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+
 
     /* Received blocks are ordered by source rank.
        Place each value into a complete row of the transposed matrix. */
@@ -79,9 +98,17 @@ static void distributed_transpose(const double complex *input, double complex *o
                 size_t received = ((r*block_count) + (i*m) + j);
                 size_t destination = ((j*n) + (r*m) + i);
                 output[destination] = recv[received];
+
+                // Task2.5 by Sam
+                fprintf(rfptr, "rank=%d, received buffer at i=%d, and j=%d is :%g\n", r, i, j, creal(recv[received]));
+                
             }
         }
     }
+
+    //Task2.5 by Sam
+    fclose(sfptr);
+    fclose(rfptr);
 }
 
 static double global_error(double local_error) {
@@ -100,7 +127,7 @@ static double slowest_time(double local_time) {
     return elapsed;
 }
 
-/* Supplied stage sequence. The result returns to ordinary row layout. */
+/* Supplied stage sequence. Tfclose(sfptr);he result returns to ordinary row layout. */
 static void fft2d_distributed(double complex *data, double complex *scratch, double complex *send,
                               double complex *recv, int n, int m, int processes) {
     for (int row = 0; row < m; ++row)
@@ -182,8 +209,12 @@ int main(int argc, char **argv) {
     double complex *scratch = allocate_or_abort(count);
     double complex *send = allocate_or_abort(count);
     double complex *recv = allocate_or_abort(count);
+
+
     if (transpose_only) {
+
         check_transpose(data, scratch, send, recv, n, m, rank, processes);
+
         free(data);
         free(scratch);
         free(send);

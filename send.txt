@@ -1,0 +1,8 @@
+rank=0, sent buffer at i=0, and j=0 is :2
+rank=0, sent buffer at i=0, and j=1 is :12
+rank=0, sent buffer at i=1, and j=0 is :3
+rank=0, sent buffer at i=1, and j=1 is :13
+rank=1, sent buffer at i=0, and j=0 is :22
+rank=1, sent buffer at i=0, and j=1 is :32
+rank=1, sent buffer at i=1, and j=0 is :23
+rank=1, sent buffer at i=1, and j=1 is :33
