@@ -69,22 +69,35 @@ static void distributed_transpose(const double complex *input, double complex *o
     /* Each destination receives one m x m block. 
        Blocks are stored by destination, then by row within each block. */
     for (int q = 0; q < processes; ++q) {
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < m; ++j) {
+        for (int row = 0; row < m; ++row) {
+            for (int column = 0; column < m; ++column) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    input has m rows of length n. Destination q needs its m columns. */
-                size_t source = ((i*n) + (q*m) + j);
-                size_t packed = ((q*block_count) + (i*m) + j);
+                size_t source = (m *(processes-1-q) + (row*n) + column);
+                size_t packed = ((q*block_count) + (row*m) + column);
                 send[packed] = input[source];
 
                 // Task2.5 by Sam
                 #pragma omp single
                 {
-                fprintf(sfptr, "r=%d,i=%d,j=%d,v=%g\n", q, i, j, creal(send[packed]));
+                printf("for rank %d, source is %d and value is %g; packed is %d\n", q,  source, creal(input[source]), packed);
+                fprintf(sfptr, "r=%d,i=%d,j=%d,v=%g\n", q, row, column, creal(send[packed]));
                 }
             }
         }
     }
+    
+    /*
+    #pragma omp single
+    {
+    for (size_t x=0; x < sizeof(send); x++) {
+        printf("for send index %d is : %f\n", x, creal(send[x]));
+    }
+    for (size_t x=0; x < sizeof(input); x++) {
+        printf("for input index %d is : %f\n", x, creal(input[x]));
+    }
+    }
+    */
 
     /* TODO Task 2: exchange one block per destination with MPI_Alltoall.
        Use block_count as the count per destination, not the total buffer size. */
@@ -94,18 +107,18 @@ static void distributed_transpose(const double complex *input, double complex *o
     /* Received blocks are ordered by source rank.
        Place each value into a complete row of the transposed matrix. */
     for (int r = 0; r < processes; ++r) {
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < m; ++j) {
+        for (int row = 0; row < m; ++row) {
+            for (int column = 0; column < m; ++column) {
                 /* TODO Task 2: fill both indices, then remove this fail call.
                    Block r came from source rank r. Transpose within the block. */
-                size_t received = ((r*block_count) + (i*m) + j);
-                size_t destination = ((j*n) + (r*m) + i);
+                size_t received = ((r*block_count) + (row*m) + column);
+                size_t destination = (m *(processes-1-r) + (row*n) + column);
                 output[destination] = recv[received];
 
                 #pragma omp single
                 {
                 // Task2.5 by Sam
-                fprintf(rfptr, "r=%d,i=%d,j=%d,v=%g\n", r, i, j, creal(recv[received]));
+                fprintf(rfptr, "r=%d,i=%d,j=%d,v=%g\n", r, row, column, creal(recv[received]));
                 }
                 
             }
