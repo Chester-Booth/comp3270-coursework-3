@@ -78,7 +78,10 @@ static void distributed_transpose(const double complex *input, double complex *o
                 send[packed] = input[source];
 
                 // Task2.5 by Sam
-                fprintf(sfptr, "rank=%d, sent buffer at i=%d, and j=%d is :%g\n", q, i, j, creal(send[packed]));
+                #pragma omp single
+                {
+                fprintf(sfptr, "r=%d,i=%d,j=%d,v=%g\n", q, i, j, creal(send[packed]));
+                }
             }
         }
     }
@@ -99,8 +102,11 @@ static void distributed_transpose(const double complex *input, double complex *o
                 size_t destination = ((j*n) + (r*m) + i);
                 output[destination] = recv[received];
 
+                #pragma omp single
+                {
                 // Task2.5 by Sam
-                fprintf(rfptr, "rank=%d, received buffer at i=%d, and j=%d is :%g\n", r, i, j, creal(recv[received]));
+                fprintf(rfptr, "r=%d,i=%d,j=%d,v=%g\n", r, i, j, creal(recv[received]));
+                }
                 
             }
         }

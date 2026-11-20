@@ -1,8 +1,8 @@
-rank=0, received buffer at i=0, and j=0 is :20
-rank=0, received buffer at i=0, and j=1 is :30
-rank=0, received buffer at i=1, and j=0 is :21
-rank=0, received buffer at i=1, and j=1 is :31
-rank=1, received buffer at i=0, and j=0 is :22
-rank=1, received buffer at i=0, and j=1 is :32
-rank=1, received buffer at i=1, and j=0 is :23
-rank=1, received buffer at i=1, and j=1 is :33
+r=0,i=0,j=0,v=20
+r=0,i=0,j=1,v=30
+r=0,i=1,j=0,v=21
+r=0,i=1,j=1,v=31
+r=1,i=0,j=0,v=22
+r=1,i=0,j=1,v=32
+r=1,i=1,j=0,v=23
+r=1,i=1,j=1,v=33
