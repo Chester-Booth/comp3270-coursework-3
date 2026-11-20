@@ -31,17 +31,13 @@ static void scatter_rows(const double complex *full, double complex *local, int 
     (void)full;
     (void)local;
     (void)count;
-    fail("TODO Task 2: complete scatter_rows");
-    // rank = []
-    /*full matrix = [[A11, A12, A13, A14],
-                    [A21, A22, A23, A24],
-                    [A31, A32, A33, A34],
+    //rank = [] 
+    /*full matrix = [[A11, A12, A13, A14], 
+                    [A21, A22, A23, A24], 
+                    [A31, A32, A33, A34], 
                     [A41, A42, A43, A44]] */
-    // for i in count:
-    // local[i] = full[i]
-    for (int i = 0; i < count; i++) {
-        local[i] = full[i];
-    }
+    MPI_Scatter(full, count, MPI_C_DOUBLE_COMPLEX, local,count, MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+
 }
 
 static void distributed_transpose(const double complex *input, double complex *output,
@@ -65,8 +61,7 @@ static void distributed_transpose(const double complex *input, double complex *o
 
     /* TODO Task 2: exchange one block per destination with MPI_Alltoall.
        Use block_count as the count per destination, not the total buffer size. */
-    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX,
-                 MPI_COMM_WORLD);
+    MPI_Alltoall(send, block_count, MPI_C_DOUBLE_COMPLEX, recv, block_count, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
 
     /* Received blocks are ordered by source rank.
        Place each value into a complete row of the transposed matrix. */
@@ -82,6 +77,7 @@ static void distributed_transpose(const double complex *input, double complex *o
         }
     }
 }
+
 
 static double global_error(double local_error) {
     double error = INFINITY;
